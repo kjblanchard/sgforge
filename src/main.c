@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 		currentOffset += entry->Size;
 	}
 	header.DirectoryOffset = currentOffset + HEADER_BINARY_SIZE;
-	SerializeDirectoryToFileEntries(entries, header.NumLumps, wadFptr);
+	sgSerializeDirectoryToFileEntries(entries, header.NumLumps, wadFptr);
 	rewind(wadFptr);
 	SerializeHeaderF(&header, wadFptr);
 	fclose(wadFptr);

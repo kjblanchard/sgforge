@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void SerializeDirectoryToFileEntries(Entry entries[], int nEntries,
+void sgSerializeDirectoryToFileEntries(Entry entries[], int nEntries,
 									 FILE* file) {
 	for (int i = 0; i < nEntries; ++i) {
 		Entry* entry = &entries[i];
@@ -17,7 +17,7 @@ void SerializeDirectoryToFileEntries(Entry entries[], int nEntries,
 		fwrite(&offset, sizeof(offset), 1, file);
 	}
 }
-Directory* DeserializeDirectoryFromBufferWithHeader(sgHeader* header,
+Directory* sgDeserializeDirectoryFromBufferWithHeader(sgHeader* header,
 													char* buf) {
 	Directory* directory = malloc(sizeof(*directory));
 	directory->Entries = calloc(header->NumLumps, sizeof(Entry));
@@ -36,7 +36,7 @@ Directory* DeserializeDirectoryFromBufferWithHeader(sgHeader* header,
 	return directory;
 }
 
-Directory* DeserializeDirectoryFromFile(const char* filename) {
+Directory* sgDeserializeDirectoryFromFile(const char* filename) {
 	sgHeader header;
 	char* data;
 	// Get the filesize
@@ -58,7 +58,7 @@ Directory* DeserializeDirectoryFromFile(const char* filename) {
 	}
 	fclose(fptr);
 	DeserializeHeader(data, &header);
-	Directory* directory = DeserializeDirectoryFromBufferWithHeader(&header, data);
+	Directory* directory = sgDeserializeDirectoryFromBufferWithHeader(&header, data);
 	/* directory->FileName = strcpy(directory->FileName, filename); */
 	directory->FileName = malloc(strlen(filename) + 1);
 	directory->Data = data;
@@ -67,7 +67,7 @@ Directory* DeserializeDirectoryFromFile(const char* filename) {
 	return directory;
 }
 
-void FreeDirectory(Directory* directory) {
+void sgFreeDirectory(Directory* directory) {
 	free(directory->FileName);
 	free(directory->Entries);
 	free(directory->Data);

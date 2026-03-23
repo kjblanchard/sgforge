@@ -5,25 +5,24 @@
 #include <string.h>
 
 Directory* LoadDirectoryFromFile(const char* name) {
-	return DeserializeDirectoryFromFile(name);
+	return sgDeserializeDirectoryFromFile(name);
 }
 
 int GetDataFromDirectory(const char* entryName, char** dataBuffer, size_t* dataSize, Directory* directory) {
 	int nLumps = directory->Header.NumLumps;
-	Entry* foundEntry = NULL;
+	Entry* entry = NULL;
 	for (int i = 0; i < nLumps; ++i) {
-		Entry* entry = &directory->Entries[i];
-		if (strcmp(entryName, entry->Name) == 0) {
-			foundEntry = entry;
+		Entry* cEntry = &directory->Entries[i];
+		if (strcmp(entryName, cEntry->Name) == 0) {
+			entry = cEntry;
 			break;
 		}
 	}
-
-	if (!foundEntry) {
+	if (!entry) {
 		sgLogError("Could not find entry in wad for %s in wad %s", entryName, directory->FileName);
 		return false;
 	}
-	*dataBuffer = directory->Data + foundEntry->Offset + HEADER_BINARY_SIZE;
-	*dataSize = foundEntry->Size;
+	*dataBuffer = directory->Data + entry->Offset + HEADER_BINARY_SIZE;
+	*dataSize = entry->Size;
 	return true;
 }

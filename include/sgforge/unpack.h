@@ -1,10 +1,13 @@
 #pragma once
-
 #include <stddef.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 struct Directory;
-
-struct Directory *LoadDirectoryFromFile(const char *name);
-int GetDataFromDirectory(const char *entryName, char **dataBuffer,
-                         size_t *dataSize, struct Directory *directory);
-// int GetDataFromDirectory(char *buffer, const char *name,
-//                          struct Directory *directory);
+// Loads a directory that can be used to get buffers from
+struct Directory* LoadDirectoryFromFile(const char* name);
+// Fills dataBuffer and dataSize with info about the data of entryName in Directory directory
+int GetDataFromDirectory(const char* entryName, char** dataBuffer, size_t* dataSize, struct Directory* directory);
+#ifdef __cplusplus
+}
+#endif
