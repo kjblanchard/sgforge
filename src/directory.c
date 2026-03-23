@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <sgforge/directory.h>
+#include <sgtools/log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +43,7 @@ Directory* DeserializeDirectoryFromFile(const char* filename) {
 	FILE* fptr;
 	fptr = fopen(filename, "rb");
 	if (!fptr) {
-		fprintf(stderr, "could not open file\n");
+		sgLogError("could not open file\n");
 	}
 	fseek(fptr, 0, SEEK_END);
 	long fsize = ftell(fptr);
@@ -50,7 +51,7 @@ Directory* DeserializeDirectoryFromFile(const char* filename) {
 	fseek(fptr, 0, SEEK_SET);
 	size_t read = fread(data, 1, fsize, fptr);
 	if (read != fsize) {
-		fprintf(stderr, "fread failed\n");
+		sgLogError("fread failed\n");
 		free(data);
 		fclose(fptr);
 		return NULL;

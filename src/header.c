@@ -1,14 +1,16 @@
 #include <arpa/inet.h>
+#include <sgtools/log.h>
 #include <assert.h>
 #include <sgforge/header.h>
 #include <string.h>
 void SerializeHeader(sgHeader *header, char *buff) {
- /* assert(1, "Not implemented"); */
+  assert(1 && "Not implemented");
 }
 
 void SerializeHeaderF(sgHeader *header, FILE *fptr) {
   strcpy(header->Magic, MAGIC);
-  printf("header data is serialize %d %d %s\n", header->DirectoryOffset, header->NumLumps, header->Magic);
+  sgLogDebug("header data is serialize %d %d %s\n", header->DirectoryOffset,
+         header->NumLumps, header->Magic);
   uint16_t flags = htons(header->Flags);
   uint16_t nLumps = htons(header->NumLumps);
   uint32_t dOffset = htonl(header->DirectoryOffset);
@@ -34,5 +36,6 @@ void DeserializeHeader(char *src, sgHeader *header) {
   header->Flags = ntohs(flags);
   header->NumLumps = ntohs(nLumps);
   header->DirectoryOffset = ntohl(dOffset);
-  printf("header data is %d %d %s\n", header->DirectoryOffset, header->NumLumps, header->Magic);
+  sgLogDebug("header data is %d %d %s\n", header->DirectoryOffset, header->NumLumps,
+         header->Magic);
 }

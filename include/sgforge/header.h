@@ -2,10 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-// What we write to the magic
 #define MAGIC "sgWad"
-// Sizeof the full sg header when it is binary
-// #define HEADER_BINARY_SIZE (sizeof(uint16_t) * 4) + sizeof(MAGIC)
 #define HEADER_BINARY_SIZE (sizeof(uint16_t) * 4) + sizeof(MAGIC)
 
 typedef enum sgHeaderFlags {

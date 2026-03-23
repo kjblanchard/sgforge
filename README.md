@@ -9,6 +9,10 @@ multiple resources at once, and keep your assets versioned.  Includes a binary
 that packs and a unpacker. See the test inside of the sound project to see it
 in use.
 
+## Dependencies
+
+- sgtools, for logging.. you can easily just replace those calls with fprintf, etc.
+
 ## Usage
 
 ### Pack
