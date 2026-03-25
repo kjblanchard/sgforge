@@ -17,20 +17,20 @@ static bool isValidLumpFile(const char* path) {
 	return true;
 }
 
-static long fileSize(FILE* fp) {
-	int prev = ftell(fp);
-	fseek(fp, 0L, SEEK_END);
-	long sz = ftell(fp);
-	fseek(fp, prev, SEEK_SET);
+static long fileSize(FILE* f) {
+	int prev = ftell(f);
+	fseek(f, 0L, SEEK_END);
+	long sz = ftell(f);
+	fseek(f, prev, SEEK_SET);
 	return sz;
 }
 
-static int countFiles(int numFiles, char* files[]) {
-	int nFiles = 0;
-	for (int i = 1; i < numFiles; ++i) {
-		if (isValidLumpFile(files[i])) ++nFiles;
+static int countFiles(int totalNumFiles, char* files[]) {
+	int n = 0;
+	for (int i = 1; i < totalNumFiles; ++i) {
+		if (isValidLumpFile(files[i])) ++n;
 	}
-	return nFiles;
+	return n;
 }
 
 static bool handleArgs(int argc, char* argv[]) {
@@ -49,12 +49,7 @@ static bool handleArgs(int argc, char* argv[]) {
 			}
 		}
 	}
-
 	return true;
-}
-
-static char* getFilenameNoPath(const char* f) {
-	return NULL;
 }
 
 int main(int argc, char* argv[]) {
@@ -68,8 +63,8 @@ int main(int argc, char* argv[]) {
 	// Move forward bast the header to write the file contents
 	fseek(wadFptr, HEADER_BINARY_SIZE, SEEK_SET);
 	size_t currentOffset = 0;
-	// Check if they are all files, and if so update the directory.
 	int entryIndex = 0;
+	// 0 is the exe name, start at 1
 	for (int i = 1; i < argc; ++i) {
 		char* a = argv[i];
 		// If the arg is the output name or if it starts with - then we should skip
@@ -77,23 +72,24 @@ int main(int argc, char* argv[]) {
 			sgLogDebug("current arg %s is the output or an argument, skipping", a);
 			continue;
 		}
-		sgLogDebug("Arg num is %d and it is %s\n", i, a);
 		if (!isValidLumpFile(a)) {
-			sgLogWarn("Not good file, skipping");
+			sgLogWarn("Skipping %s as it isn't a valid file", a);
 			continue;
 		}
+		sgLogDebug("Arg num is %d and it is %s\n", i, a);
 		Entry* entry = &entries[entryIndex++];
 		FILE* fptr = fopen(a, "rb");
 		if (!fptr) {
-			sgLogError("Could not open file!\n");
+			sgLogError("Could not open file %s for reading!\n", a);
 		}
+		//Trim off the path to get the basename if it exists
 		char* pLastSlash = strrchr(a, '/');
 		char* pszBaseName = pLastSlash ? pLastSlash + 1 : a;
 		strncpy(entry->Name, pszBaseName, MAX_ENTRY_NAME);
 		entry->Offset = currentOffset;
 		entry->Size = fileSize(fptr);
 		int c;
-		// Write the entire file to the wad.
+		// Write the entire file writing to the wad file.
 		while ((c = fgetc(fptr)) != EOF) {
 			fputc(c, wadFptr);
 		}
