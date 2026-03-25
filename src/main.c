@@ -4,6 +4,7 @@
 #include <sgtools/log.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define WAD_FILENAME "/tmp/test.sg"
@@ -37,7 +38,23 @@ static bool handleArgs(int argc, char* argv[]) {
 		sgLogWarn("No params passed in, exiting.");
 		return false;
 	}
+	// Check to see if we should update the output name when -o is passed
+	for (int i = 1; i < argc; ++i) {
+		char* a = argv[i];
+		if (strcmp(a, "-o") == 0) {
+			// Next one is the output filename if it exists
+			int n = i + 1;
+			if (n < argc) {
+				sOutputName = argv[n];
+			}
+		}
+	}
+
 	return true;
+}
+
+static char* getFilenameNoPath(const char* f) {
+	return NULL;
 }
 
 int main(int argc, char* argv[]) {
@@ -54,17 +71,25 @@ int main(int argc, char* argv[]) {
 	// Check if they are all files, and if so update the directory.
 	int entryIndex = 0;
 	for (int i = 1; i < argc; ++i) {
-		sgLogDebug("Arg num is %d and it is %s\n", i, argv[i]);
-		if (!isValidLumpFile(argv[i])) {
+		char* a = argv[i];
+		// If the arg is the output name or if it starts with - then we should skip
+		if (strcmp(a, sOutputName) == 0 || a[0] == '-') {
+			sgLogDebug("current arg %s is the output or an argument, skipping", a);
+			continue;
+		}
+		sgLogDebug("Arg num is %d and it is %s\n", i, a);
+		if (!isValidLumpFile(a)) {
 			sgLogWarn("Not good file, skipping");
 			continue;
 		}
 		Entry* entry = &entries[entryIndex++];
-		FILE* fptr = fopen(argv[i], "rb");
+		FILE* fptr = fopen(a, "rb");
 		if (!fptr) {
-			sgLogError( "Could not open file!\n");
+			sgLogError("Could not open file!\n");
 		}
-		strncpy(entry->Name, argv[i], MAX_ENTRY_NAME);
+		char* pLastSlash = strrchr(a, '/');
+		char* pszBaseName = pLastSlash ? pLastSlash + 1 : a;
+		strncpy(entry->Name, pszBaseName, MAX_ENTRY_NAME);
 		entry->Offset = currentOffset;
 		entry->Size = fileSize(fptr);
 		int c;
@@ -74,6 +99,7 @@ int main(int argc, char* argv[]) {
 		}
 		fclose(fptr);
 		currentOffset += entry->Size;
+		sgLogDebug("Wrote entry %s with offset %d and size %d", entry->Name, entry->Offset, entry->Size);
 	}
 	header.DirectoryOffset = currentOffset + HEADER_BINARY_SIZE;
 	sgSerializeDirectoryToFileEntries(entries, header.NumLumps, wadFptr);
