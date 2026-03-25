@@ -16,9 +16,9 @@ typedef struct sgHeader {
 } sgHeader;
 
 // serialize a header into a file stream
-void SerializeHeaderF(sgHeader* header, FILE* fptr);
+void sgSerializeHeader(sgHeader* header, FILE* fptr);
 // Deserialize a header into dst from the beginning of a buffer stream src;
-void DeserializeHeader(char* src, sgHeader* header);
+void sgDeserializeHeader(char* src, sgHeader* header);
 #ifdef __cplusplus
 }
 #endif

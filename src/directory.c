@@ -6,34 +6,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-void sgSerializeDirectoryToFileEntries(Entry entries[], int nEntries,
-									 FILE* file) {
+void sgSerializeDirectoryToFileEntries(Entry entries[], int nEntries, FILE* file) {
 	for (int i = 0; i < nEntries; ++i) {
-		Entry* entry = &entries[i];
-		uint32_t size = htonl(entry->Size);
-		uint32_t offset = htonl(entry->Offset);
-		fwrite(entry->Name, 64, 1, file);
-		fwrite(&size, sizeof(size), 1, file);
+		Entry* e = &entries[i];
+		uint32_t sz = htonl(e->Size);
+		uint32_t offset = htonl(e->Offset);
+		fwrite(e->Name, 64, 1, file);
+		fwrite(&sz, sizeof(sz), 1, file);
 		fwrite(&offset, sizeof(offset), 1, file);
 	}
 }
-Directory* sgDeserializeDirectoryFromBufferWithHeader(sgHeader* header,
-													char* buf) {
-	Directory* directory = malloc(sizeof(*directory));
-	directory->Entries = calloc(header->NumLumps, sizeof(Entry));
-	size_t entrySize = 64 + (sizeof(uint32_t) * 2);
+Directory* sgDeserializeDirectoryFromBufferWithHeader(sgHeader* header, char* buf) {
+	Directory* d = malloc(sizeof(*d));
+	d->Entries = calloc(header->NumLumps, sizeof(Entry));
+	static const size_t sz = 64 + (sizeof(uint32_t) * 2);
 	for (int i = 0; i < header->NumLumps; ++i) {
-		Entry* entry = &directory->Entries[i];
-		size_t entryOffset = entrySize * i + header->DirectoryOffset;
-		memcpy(entry->Name, buf + entryOffset, 64);
+		Entry* e = &d->Entries[i];
+		size_t entryOffset = sz * i + header->DirectoryOffset;
+		memcpy(e->Name, buf + entryOffset, 64);
 		uint32_t size, offset;
 		memcpy(&size, buf + 64 + entryOffset, sizeof(uint32_t));
 		memcpy(&offset, buf + 64 + sizeof(uint32_t) + entryOffset, sizeof(uint32_t));
-		entry->Offset = ntohl(offset);
-		entry->Size = ntohl(size);
+		e->Offset = ntohl(offset);
+		e->Size = ntohl(size);
 	}
-	memcpy(&directory->Header, header, sizeof(*header));
-	return directory;
+	memcpy(&d->Header, header, sizeof(*header));
+	return d;
 }
 
 Directory* sgDeserializeDirectoryFromFile(const char* filename) {
@@ -57,13 +55,11 @@ Directory* sgDeserializeDirectoryFromFile(const char* filename) {
 		return NULL;
 	}
 	fclose(fptr);
-	DeserializeHeader(data, &header);
+	sgDeserializeHeader(data, &header);
 	Directory* directory = sgDeserializeDirectoryFromBufferWithHeader(&header, data);
-	/* directory->FileName = strcpy(directory->FileName, filename); */
 	directory->FileName = malloc(strlen(filename) + 1);
 	directory->Data = data;
 	strcpy(directory->FileName, filename);
-
 	return directory;
 }
 

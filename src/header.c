@@ -4,7 +4,7 @@
 #include <sgtools/log.h>
 #include <string.h>
 
-void SerializeHeaderF(sgHeader* header, FILE* fptr) {
+void sgSerializeHeader(sgHeader* header, FILE* fptr) {
 	assert(header && fptr && "Bad header or file ptr!");
 	strcpy(header->Magic, MAGIC);
 	sgLogDebug("header data is serialize %d %d %s\n", header->DirectoryOffset, header->NumLumps, header->Magic);
@@ -17,7 +17,7 @@ void SerializeHeaderF(sgHeader* header, FILE* fptr) {
 	fwrite(&dOffset, sizeof(dOffset), 1, fptr);
 }
 
-void DeserializeHeader(char* src, sgHeader* header) {
+void sgDeserializeHeader(char* src, sgHeader* header) {
 	assert(src && header && "Bad buffer or header passed to deserialize header");
 	uint32_t offset = 0;
 	uint16_t flags, nLumps;

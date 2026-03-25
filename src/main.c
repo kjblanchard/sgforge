@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 	header.DirectoryOffset = currentOffset + HEADER_BINARY_SIZE;
 	sgSerializeDirectoryToFileEntries(entries, header.NumLumps, wadFptr);
 	rewind(wadFptr);
-	SerializeHeaderF(&header, wadFptr);
+	sgSerializeHeader(&header, wadFptr);
 	fclose(wadFptr);
 	return true;
 }
