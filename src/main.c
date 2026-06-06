@@ -25,13 +25,26 @@ static long fileSize(FILE* f) {
 	return sz;
 }
 
+/* static int countFiles(int totalNumFiles, char* files[]) { */
+/* 	int n = 0; */
+/* 	for (int i = 1; i < totalNumFiles; ++i) { */
+/* 		if (isValidLumpFile(files[i])) ++n; */
+/* 	} */
+/* 	return n; */
+/* } */
+
 static int countFiles(int totalNumFiles, char* files[]) {
-	int n = 0;
-	for (int i = 1; i < totalNumFiles; ++i) {
-		if (isValidLumpFile(files[i])) ++n;
-	}
-	return n;
+    int n = 0;
+    for (int i = 1; i < totalNumFiles; ++i) {
+        char* a = files[i];
+        if (strcmp(a, sOutputName) == 0 || a[0] == '-') {
+            continue;
+        }
+        if (isValidLumpFile(a)) ++n;
+    }
+    return n;
 }
+
 
 static bool handleArgs(int argc, char* argv[]) {
 	if (argc < 2) {

@@ -13,6 +13,7 @@ int GetDataFromDirectory(const char* entryName, char** dataBuffer, size_t* dataS
 	Entry* entry = NULL;
 	for (int i = 0; i < nLumps; ++i) {
 		Entry* cEntry = &directory->Entries[i];
+		sgLogDebug("Checking %s against %s", entryName, cEntry->Name);
 		if (strcmp(entryName, cEntry->Name) == 0) {
 			entry = cEntry;
 			break;
