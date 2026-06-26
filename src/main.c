@@ -1,4 +1,3 @@
-#include <arpa/inet.h>
 #include <sgforge/directory.h>
 #include <sgforge/header.h>
 #include <sgtools/log.h>
@@ -6,6 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#else
+    #include <arpa/inet.h>
+#endif
 
 #define WAD_FILENAME "/tmp/test.sg"
 static char* sOutputName = WAD_FILENAME;
