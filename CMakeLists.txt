@@ -19,6 +19,7 @@ if(UNIX OR APPLE)
     -Wdouble-promotion
     -Wformat=2)
 endif(UNIX OR APPLE)
+include(FetchContent)
 add_library(${LIBRARY_NAME} STATIC ./src/unpack.c ./src/header.c
                                    ./src/directory.c)
 target_include_directories(${LIBRARY_NAME} PRIVATE ./include)
