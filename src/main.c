@@ -7,10 +7,10 @@
 #include <string.h>
 
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
-    #include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 
 #define WAD_FILENAME "/tmp/test.sg"
@@ -40,17 +40,16 @@ static long fileSize(FILE* f) {
 /* } */
 
 static int countFiles(int totalNumFiles, char* files[]) {
-    int n = 0;
-    for (int i = 1; i < totalNumFiles; ++i) {
-        char* a = files[i];
-        if (strcmp(a, sOutputName) == 0 || a[0] == '-') {
-            continue;
-        }
-        if (isValidLumpFile(a)) ++n;
-    }
-    return n;
+	int n = 0;
+	for (int i = 1; i < totalNumFiles; ++i) {
+		char* a = files[i];
+		if (strcmp(a, sOutputName) == 0 || a[0] == '-') {
+			continue;
+		}
+		if (isValidLumpFile(a)) ++n;
+	}
+	return n;
 }
-
 
 static bool handleArgs(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -77,7 +76,9 @@ int main(int argc, char* argv[]) {
 	strcpy(header.Magic, "sgsav");
 	header.Flags = 0;
 	header.NumLumps = countFiles(argc, argv);
-	Entry entries[header.NumLumps];
+	Entry* entries = malloc(header.NumLumps * sizeof(*entries));
+	/* use entries[] normally */
+
 	FILE* wadFptr = fopen(sOutputName, "wb");
 	// Move forward bast the header to write the file contents
 	fseek(wadFptr, HEADER_BINARY_SIZE, SEEK_SET);
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
 		if (!fptr) {
 			sgLogError("Could not open file %s for reading!\n", a);
 		}
-		//Trim off the path to get the basename if it exists
+		// Trim off the path to get the basename if it exists
 		char* pLastSlash = strrchr(a, '/');
 		char* pszBaseName = pLastSlash ? pLastSlash + 1 : a;
 		strncpy(entry->Name, pszBaseName, MAX_ENTRY_NAME);
@@ -121,5 +122,6 @@ int main(int argc, char* argv[]) {
 	rewind(wadFptr);
 	sgSerializeHeader(&header, wadFptr);
 	fclose(wadFptr);
+	free(entries);
 	return true;
 }
