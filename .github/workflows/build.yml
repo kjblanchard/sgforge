@@ -36,7 +36,6 @@ jobs:
 
       - name: Build
         run: |
-          make clean
           cmake --build build --config Release
 
       - name: Install
