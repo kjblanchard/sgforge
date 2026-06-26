@@ -71,7 +71,7 @@ static bool handleArgs(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-	if (!handleArgs(argc, argv)) return false;
+	if (!handleArgs(argc, argv)) return 1;
 	sgHeader header;
 	strcpy(header.Magic, "sgsav");
 	header.Flags = 0;
@@ -101,6 +101,7 @@ int main(int argc, char* argv[]) {
 		FILE* fptr = fopen(a, "rb");
 		if (!fptr) {
 			sgLogError("Could not open file %s for reading!\n", a);
+			continue;
 		}
 		// Trim off the path to get the basename if it exists
 		char* pLastSlash = strrchr(a, '/');
@@ -123,5 +124,5 @@ int main(int argc, char* argv[]) {
 	sgSerializeHeader(&header, wadFptr);
 	fclose(wadFptr);
 	free(entries);
-	return true;
+	return 0;
 }
