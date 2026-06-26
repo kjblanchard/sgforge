@@ -1,8 +1,13 @@
-#include <arpa/inet.h>
 #include <assert.h>
 #include <sgforge/header.h>
 #include <sgtools/log.h>
 #include <string.h>
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#else
+    #include <arpa/inet.h>
+#endif
 
 void sgSerializeHeader(sgHeader* header, FILE* fptr) {
 	assert(header && fptr && "Bad header or file ptr!");
