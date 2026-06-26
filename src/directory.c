@@ -1,10 +1,16 @@
-#include <arpa/inet.h>
 #include <assert.h>
 #include <sgforge/directory.h>
 #include <sgtools/log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#else
+    #include <arpa/inet.h>
+#endif
 
 void sgSerializeDirectoryToFileEntries(Entry entries[], int nEntries, FILE* file) {
 	for (int i = 0; i < nEntries; ++i) {
