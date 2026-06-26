@@ -36,7 +36,6 @@ jobs:
 
       - name: Build
         run: |
-          - name: Build
           cmake -DCMAKE_BUILD_TYPE=Release -B build .
           cmake --build build --config Release
 
