@@ -1,0 +1,76 @@
+name: Build SGForge
+
+on:
+  push:
+    branches:
+      - "master"
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: sgforge-linux
+            exe: sgforge
+          - os: windows-latest
+            artifact: sgforge-windows
+            exe: sgforge.exe
+          - os: macos-latest
+            artifact: sgforge-macos
+            exe: sgforge
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make rebuild
+
+      - name: Package (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir package
+          cp build/${{ matrix.exe }} package/
+          cd package
+          tar -czf ../${{ matrix.artifact }}.tar.gz .
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory package
+          Copy-Item build/Release/${{ matrix.exe }} package/
+          Compress-Archive -Path package/* -DestinationPath ${{ matrix.artifact }}.zip
+
+      - name: Upload Artifact (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.tar.gz
+
+      - name: Upload Artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.zip
+
+      - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.zip
+            *.tar.gz
