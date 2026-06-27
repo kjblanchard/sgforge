@@ -25,8 +25,7 @@ add_library(${LIBRARY_NAME} STATIC ./src/unpack.c ./src/header.c
 target_include_directories(${LIBRARY_NAME} PRIVATE ./include)
 set(FORGE_EXE ${LIBRARY_NAME}_creator)
 add_executable(${FORGE_EXE} ./src/main.c)
-
-if(DEFINED ENV{GITHUB_ACTIONS})
+if(DEFINED ENV{GITHUB_ACTIONS} OR NOT SYSTEM_PACKAGES)
   message(STATUS "Building on GitHub Actions - fetching sgtools")
   FetchContent_Declare(
     sgtools
