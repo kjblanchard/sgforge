@@ -25,7 +25,8 @@ add_library(${LIBRARY_NAME} STATIC ./src/unpack.c ./src/header.c
                                  target_include_directories(${LIBRARY_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(FORGE_EXE ${LIBRARY_NAME}_creator)
 add_executable(${FORGE_EXE} ./src/main.c)
-if((DEFINED ENV{GITHUB_ACTIONS} OR NOT SYSTEM_PACKAGES) AND NOT TARGET sgtools)
+if(NOT TARGET sgtools)
+if(DEFINED ENV{GITHUB_ACTIONS} OR NOT SYSTEM_PACKAGES )
   message(STATUS "Building on GitHub Actions - fetching sgtools")
   FetchContent_Declare(
     sgtools
@@ -36,6 +37,7 @@ else()
   message(STATUS "Using local sgtools")
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../sgtools
                    ${CMAKE_BINARY_DIR}/sgtools)
+endif(NOT TARGET sgtools)
 endif()
 target_link_libraries(${LIBRARY_NAME} PUBLIC sgtools)
 if(WIN32)
