@@ -22,7 +22,7 @@ endif(UNIX OR APPLE)
 include(FetchContent)
 add_library(${LIBRARY_NAME} STATIC ./src/unpack.c ./src/header.c
                                    ./src/directory.c)
-                                 target_include_directories(${LIBRARY_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+ target_include_directories(${LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(FORGE_EXE ${LIBRARY_NAME}_creator)
 add_executable(${FORGE_EXE} ./src/main.c)
 if(NOT TARGET sgtools)
