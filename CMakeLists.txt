@@ -22,10 +22,10 @@ endif(UNIX OR APPLE)
 include(FetchContent)
 add_library(${LIBRARY_NAME} STATIC ./src/unpack.c ./src/header.c
                                    ./src/directory.c)
-target_include_directories(${LIBRARY_NAME} PRIVATE ./include)
+                                 target_include_directories(${LIBRARY_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(FORGE_EXE ${LIBRARY_NAME}_creator)
 add_executable(${FORGE_EXE} ./src/main.c)
-if(DEFINED ENV{GITHUB_ACTIONS} OR NOT SYSTEM_PACKAGES)
+if((DEFINED ENV{GITHUB_ACTIONS} OR NOT SYSTEM_PACKAGES) AND NOT TARGET sgtools)
   message(STATUS "Building on GitHub Actions - fetching sgtools")
   FetchContent_Declare(
     sgtools
@@ -43,7 +43,7 @@ if(WIN32)
   target_link_libraries(${LIBRARY_NAME} PUBLIC ws2_32)
 endif()
 target_link_libraries(${FORGE_EXE} PRIVATE ${LIBRARY_NAME})
-target_include_directories(${FORGE_EXE} PUBLIC ./include)
+target_include_directories(${FORGE_EXE} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(${FORGE_EXE} PROPERTIES OUTPUT_NAME sgforge)
 
 if(SGFORGE_INSTALL_TOOLS)
@@ -55,5 +55,6 @@ if(SGFORGE_INSTALL_LIB)
     TARGETS ${LIBRARY_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib)
-  install(DIRECTORY ./include/ DESTINATION include)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/sgforge DESTINATION include)
+
 endif()
