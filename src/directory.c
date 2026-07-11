@@ -46,7 +46,7 @@ Directory* sgDeserializeDirectoryFromFile(const char* filename) {
 	// Get the filesize
 	FILE* fptr;
 	fptr = fopen(filename, "rb");
-	sgLogWarn("opening file %s", filename);
+	sgLogDebug("opening directory %s", filename);
 	if (!fptr) {
 		sgLogCritical("could not open file %s", filename);
 	}
