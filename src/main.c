@@ -72,6 +72,7 @@ static bool handleArgs(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 	if (!handleArgs(argc, argv)) return 1;
+	sgSetLogLevel(sgLogLevelWarn);
 	sgHeader header;
 	strcpy(header.Magic, "sgsav");
 	header.Flags = 0;
