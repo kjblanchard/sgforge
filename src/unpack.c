@@ -20,7 +20,7 @@ int GetDataFromDirectory(const char* entryName, char** dataBuffer, size_t* dataS
 		}
 	}
 	if (!entry) {
-		sgLogError("Could not find entry in wad for %s in wad %s", entryName, directory->FileName);
+		sgLogDebug("Could not find entry in wad for %s in wad %s", entryName, directory->FileName);
 		return false;
 	}
 	*dataBuffer = directory->Data + entry->Offset + HEADER_BINARY_SIZE;
