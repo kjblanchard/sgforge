@@ -1,20 +1,27 @@
 #include <sgforge/directory.h>
 #include <sgforge/header.h>
+#include <sgforge/unpack.h>
 #include <sgtools/log.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <direct.h>
+#define MKDIR(path) _mkdir(path)
 #else
 #include <arpa/inet.h>
+#define MKDIR(path) mkdir(path, 0755)
 #endif
 
 #define WAD_FILENAME "/tmp/test.sg"
 static char* sOutputName = WAD_FILENAME;
+static bool sExtractMode = false;
+static char* sInputFile = NULL;
 
 static bool isValidLumpFile(const char* path) {
 	FILE* f = fopen(path, "rb");
@@ -56,23 +63,61 @@ static bool handleArgs(int argc, char* argv[]) {
 		sgLogWarn("No params passed in, exiting.");
 		return false;
 	}
-	// Check to see if we should update the output name when -o is passed
 	for (int i = 1; i < argc; ++i) {
 		char* a = argv[i];
 		if (strcmp(a, "-o") == 0) {
-			// Next one is the output filename if it exists
 			int n = i + 1;
 			if (n < argc) {
 				sOutputName = argv[n];
+			}
+		} else if (strcmp(a, "-x") == 0) {
+			sExtractMode = true;
+			int n = i + 1;
+			if (n < argc) {
+				sInputFile = argv[n];
 			}
 		}
 	}
 	return true;
 }
 
+static int extractArchive(void) {
+	if (!sInputFile) {
+		sgLogWarn("Extract mode requires an input file: sgforge -x <file.sg> -o <output_dir>");
+		return 1;
+	}
+	MKDIR(sOutputName);
+	Directory* directory = LoadDirectoryFromFile(sInputFile);
+	if (!directory) {
+		sgLogWarn("Could not open archive %s", sInputFile);
+		return 1;
+	}
+	for (int i = 0; i < directory->Header.NumLumps; ++i) {
+		Entry* entry = &directory->Entries[i];
+		char* dataBuffer;
+		size_t dataSize;
+		if (!GetDataFromDirectory(entry->Name, &dataBuffer, &dataSize, directory)) {
+			sgLogWarn("Could not read entry %s", entry->Name);
+			continue;
+		}
+		char outPath[512];
+		snprintf(outPath, sizeof(outPath), "%s/%s", sOutputName, entry->Name);
+		FILE* fptr = fopen(outPath, "wb");
+		if (!fptr) {
+			sgLogWarn("Could not write %s", outPath);
+			continue;
+		}
+		fwrite(dataBuffer, 1, dataSize, fptr);
+		fclose(fptr);
+	}
+	sgFreeDirectory(directory);
+	return 0;
+}
+
 int main(int argc, char* argv[]) {
 	if (!handleArgs(argc, argv)) return 1;
 	sgSetLogLevel(sgLogLevelWarn);
+	if (sExtractMode) return extractArchive();
 	sgHeader header;
 	strcpy(header.Magic, "sgsav");
 	header.Flags = 0;
