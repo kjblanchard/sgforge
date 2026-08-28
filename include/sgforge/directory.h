@@ -29,7 +29,7 @@ void sgFreeDirectory(Directory* directory);
 Directory* sgDeserializeDirectoryFromBuffer(char* buf);
 Directory* sgDeserializeDirectoryFromBufferWithHeader(sgHeader* header, char* buf);
 Directory* sgDeserializeDirectoryFromFile(const char* filename);
-Directory* sgDeserializeDirectoryFromMemory( const char* filename, const void* data, size_t size)
+Directory* sgDeserializeDirectoryFromMemory( const char* filename, const void* data, size_t size);
 
 #ifdef __cplusplus
 }
