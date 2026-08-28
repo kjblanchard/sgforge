@@ -40,6 +40,28 @@ Directory* sgDeserializeDirectoryFromBufferWithHeader(sgHeader* header, char* bu
 	return d;
 }
 
+Directory* sgDeserializeDirectoryFromMemory(
+    const char* filename,
+    const void* data,
+    size_t size)
+{
+    char* copy = malloc(size);
+    memcpy(copy, data, size);
+
+    sgHeader header;
+    sgDeserializeHeader(copy, &header);
+
+    Directory* directory =
+        sgDeserializeDirectoryFromBufferWithHeader(&header, copy);
+
+    directory->FileName = malloc(strlen(filename) + 1);
+    strcpy(directory->FileName, filename);
+    directory->Data = copy;
+
+    return directory;
+}
+
+
 Directory* sgDeserializeDirectoryFromFile(const char* filename) {
 	sgHeader header;
 	char* data;
